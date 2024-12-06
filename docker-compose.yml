@@ -1,0 +1,25 @@
+services:
+  server:
+    image: python:3.13-slim
+    volumes:
+      - "vol:/usr/sync"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sync
+    command: ["python", "-m", "http.server", "-d", "/usr/sync/html", "8080"]    
+  
+  sync:
+    user: root
+    image: k8s.gcr.io/git-sync:v3.1.6
+    volumes:
+      - "vol:/root/git"
+    environment:
+      - GIT_SYNC_REPO=https://github.com/nigelpoulton/ps-sidecar.git
+      - GIT_SYNC_BRANCH=master
+      - GIT_SYNC_DEPTH=1
+      - GIT_SYNC_DEST=html
+      - GITSYNC_ROOT=/root/git/root
+
+volumes:
+  vol:
